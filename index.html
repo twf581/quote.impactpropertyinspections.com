@@ -117,42 +117,49 @@
       </div>
     </div>
 
-    <div class="card hidden" id="summaryCard">
-      <h2>4. Quote Summary</h2>
-      <div class="grid-3">
-        <div class="summary-box">
-          <div class="muted">Base Inspection</div>
-          <div class="big" id="basePrice">$0.00</div>
-        </div>
-        <div class="summary-box">
-          <div class="muted">Add-Ons</div>
-          <div class="big" id="addOnsPrice">$0.00</div>
-        </div>
-        <div class="summary-box summary-total">
-          <div class="muted">Estimated Total</div>
-          <div class="big" id="totalPrice">$0.00</div>
-        </div>
-      </div>
+  <div class="card hidden" id="summaryCard">
+  <h2>4. Quote Summary</h2>
 
-      <div class="note" id="summaryDetails">
-        Quote details will appear here.
-      </div>
-
-      <div class="note" id="bookingLogicNote" style="margin-top:10px;">
-        Booking logic note will appear here.
-      </div>
-
-      <button class="primary-btn" onclick="generateQuote()">Generate Quote Text</button>
-      <textarea id="quoteOutput" rows="10" placeholder="Quote text will appear here"></textarea>
-
-      <div class="grid-2">
-        <button class="dark-btn" onclick="openTextMessage()">Open Text Message</button>
-        <button class="secondary-btn" onclick="copyQuote()">Copy Quote</button>
-      </div>
-
-      <a class="book-btn" id="bookLink" href="https://calendly.com/mobileonsitehandyman/handyman-service-appointment" target="_blank">Book Inspection</a>
-      <div id="copyStatus" style="margin-top:8px; font-size:14px; font-weight:700; color:#1d4ed8;"></div>
+  <div class="grid-3">
+    <div class="summary-box">
+      <div class="muted">Base Inspection</div>
+      <div class="big" id="basePrice">$0.00</div>
     </div>
+
+    <div class="summary-box">
+      <div class="muted">Add-Ons</div>
+      <div class="big" id="addOnsPrice">$0.00</div>
+    </div>
+
+    <div class="summary-box summary-total">
+      <div class="muted">Estimated Total</div>
+      <div class="big" id="totalPrice">$0.00</div>
+    </div>
+  </div>
+
+  <div class="note" id="summaryDetails">
+    Quote details will appear here.
+  </div>
+
+  <div class="note" id="bookingLogicNote" style="margin-top:10px;">
+    Booking logic note will appear here.
+  </div>
+
+  <button class="primary-btn" onclick="generateQuote()">Generate Quote Text</button>
+
+  <textarea id="quoteOutput" rows="10" placeholder="Quote text will appear here"></textarea>
+
+  <div class="grid-2">
+    <button class="dark-btn" onclick="openTextMessage()">Open Text Message</button>
+    <button class="secondary-btn" onclick="copyQuote()">Copy Quote</button>
+  </div>
+
+  <a class="book-btn" id="bookLink" href="#" target="_blank">
+    Book Inspection
+  </a>
+
+  <div id="copyStatus" style="margin-top:8px; font-size:14px; font-weight:700; color:#1d4ed8;"></div>
+</div>
   </div>
 
   <script>
@@ -251,51 +258,71 @@
       return total;
     }
 
-    function updateQuote() {
-      const zip = document.getElementById('zip').value.trim();
-      const zone = zipToZone(zip);
-      const propertyType = document.getElementById('propertyType').value;
-      const sqft = Number(document.getElementById('sqft').value || 0);
-      const stories = Number(document.getElementById('stories').value || 1);
+   function updateQuote() {
+  const zip = document.getElementById('zip').value.trim();
+  const zone = zipToZone(zip);
+  const propertyType = document.getElementById('propertyType').value;
+  const sqft = Number(document.getElementById('sqft').value || 0);
+  const stories = Number(document.getElementById('stories').value || 1);
 
-      const propertyCard = document.getElementById('propertyCard');
-      const addonsCard = document.getElementById('addonsCard');
-      const summaryCard = document.getElementById('summaryCard');
-      const zoneBox = document.getElementById('zoneBox');
+  const propertyCard = document.getElementById('propertyCard');
+  const addonsCard = document.getElementById('addonsCard');
+  const summaryCard = document.getElementById('summaryCard');
+  const zoneBox = document.getElementById('zoneBox');
 
-      if (!zip || !zone) {
-        propertyCard.classList.add('hidden');
-        addonsCard.classList.add('hidden');
-        summaryCard.classList.add('hidden');
-        zoneBox.textContent = 'Enter a ZIP code to confirm service area and pricing zone.';
-        return;
-      }
+  if (!zip || !zone) {
+    propertyCard.classList.add('hidden');
+    addonsCard.classList.add('hidden');
+    summaryCard.classList.add('hidden');
+    zoneBox.textContent = 'Enter a ZIP code to confirm service area and pricing zone.';
+    return;
+  }
 
-      propertyCard.classList.remove('hidden');
-      addonsCard.classList.remove('hidden');
-      summaryCard.classList.remove('hidden');
-      zoneBox.textContent = `${zone.name} • ${zone.label} • ${zone.cluster} • Multiplier ${zone.multiplier.toFixed(2)}x`;
+  propertyCard.classList.remove('hidden');
+  addonsCard.classList.remove('hidden');
+  summaryCard.classList.remove('hidden');
+  zoneBox.textContent = `${zone.name} • ${zone.label} • ${zone.cluster} • Multiplier ${zone.multiplier.toFixed(2)}x`;
 
-      const timing = getDurationLabel(propertyType, sqft, stories);
-      document.getElementById('timingNote').textContent = sqft ? `Estimated field time: ${timing.label}. First inspection of the day should set the area cluster; second inspection should stay nearby.` : 'Enter square footage to see estimated inspection time.';
+  const timing = getDurationLabel(propertyType, sqft, stories);
+  document.getElementById('timingNote').textContent = sqft
+    ? `Estimated field time: ${timing.label}. First inspection of the day should set the area cluster; second inspection should stay nearby.`
+    : 'Enter square footage to see estimated inspection time.';
 
-      const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
-      const base = rawBase ? Math.round(rawBase * zone.multiplier) : 0;
-      const addOns = getSelectedAddOnsTotal();
-      const total = base + addOns;
+  const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
+  const base = rawBase ? Math.round(rawBase * zone.multiplier) : 0;
+  const addOns = getSelectedAddOnsTotal();
+  const total = base + addOns;
 
-      document.getElementById('basePrice').textContent = formatCurrency(base);
-      document.getElementById('addOnsPrice').textContent = formatCurrency(addOns);
-      document.getElementById('totalPrice').textContent = formatCurrency(total);
+  document.getElementById('basePrice').textContent = formatCurrency(base);
+  document.getElementById('addOnsPrice').textContent = formatCurrency(addOns);
+  document.getElementById('totalPrice').textContent = formatCurrency(total);
 
-      document.getElementById('summaryDetails').innerHTML = `
-        Property Type: ${propertyType === 'condo' ? 'Condo / Townhome' : 'Single Family Home'}<br>
-        Square Feet: ${sqft || 'Not entered'}<br>
-        Stories: ${stories}<br>
-        Zone: ${zone.name} - ${zone.label}<br>
-        Booking Type: ${timing.label}
-      `;
+  document.getElementById('summaryDetails').innerHTML = `
+    Property Type: ${propertyType === 'condo' ? 'Condo / Townhome' : 'Single Family Home'}<br>
+    Square Feet: ${sqft || 'Not entered'}<br>
+    Stories: ${stories}<br>
+    Zone: ${zone.name} - ${zone.label}<br>
+    Booking Type: ${timing.label}
+  `;
 
+  document.getElementById('bookingLogicNote').innerHTML = `
+    <strong>Scheduling rule:</strong> First inspection booked for a day sets that day's area cluster.<br>
+    <strong>Current cluster:</strong> ${zone.cluster}<br>
+    <strong>Capacity target:</strong> Up to 2 inspections per day, unless this property requires the full day.
+  `;
+
+  let bookingLink = "";
+
+  if (timing.type === "condo_3hr" || timing.type === "small_home_3hr") {
+    bookingLink = "PASTE_YOUR_CONDO_SMALL_HOME_LINK_HERE";
+  } else if (timing.type === "standard_home_4_5hr") {
+    bookingLink = "PASTE_YOUR_STANDARD_HOME_LINK_HERE";
+  } else {
+    bookingLink = "PASTE_YOUR_LARGE_HOME_LINK_HERE";
+  }
+
+  document.getElementById('bookLink').href = bookingLink;
+}
       document.getElementById('bookingLogicNote').innerHTML = `
         <strong>Scheduling rule:</strong> First inspection booked for a day sets that day's area cluster.<br>
         <strong>Current cluster:</strong> ${zone.cluster}<br>
