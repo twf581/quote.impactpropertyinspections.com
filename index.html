@@ -4,53 +4,206 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Impact Property Inspections - Quote App</title>
+
   <style>
-    body { font-family: Arial, sans-serif; background:#f8fafc; margin:0; padding:16px; color:#0f172a; }
-    .wrap { max-width: 980px; margin: 0 auto; }
-    .hero { background: linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0ea5e9 100%); color:white; border-radius:24px; padding:24px; margin-bottom:16px; }
-    .hero-kicker { font-size:12px; letter-spacing:.15em; text-transform:uppercase; opacity:.85; }
-    .card { background:white; border-radius:20px; padding:20px; margin-bottom:16px; box-shadow:0 4px 16px rgba(0,0,0,.08); }
-    .hidden { display:none; }
-    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    input, select, button, textarea { width:100%; padding:14px; border-radius:14px; border:1px solid #cbd5e1; font-size:16px; box-sizing:border-box; margin-top:6px; margin-bottom:10px; }
-    button { cursor:pointer; border:none; }
-    label { display:block; font-weight:600; margin-top:8px; }
-    .note { background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px; font-size:14px; color:#475569; line-height:1.5; }
-    .zone-box { background:#ecfeff; border:1px solid #a5f3fc; color:#155e75; border-radius:14px; padding:14px; }
-    .summary-box { background:#f8fafc; border-radius:14px; padding:14px; border:1px solid #e2e8f0; margin-bottom:10px; }
-    .summary-total { background:#dbeafe; border-color:#93c5fd; color:#1e3a8a; }
-    .muted { font-size:12px; text-transform:uppercase; color:#64748b; letter-spacing:.08em; }
-    .big { font-size:30px; font-weight:700; margin-top:6px; }
-    .addon { border:1px solid #e2e8f0; background:#fff; border-radius:14px; padding:14px; margin-bottom:10px; }
-    .inline-check { width:auto; margin-right:8px; margin-bottom:0; }
-    .primary-btn { background: linear-gradient(135deg,#1d4ed8,#3b82f6); color:white; font-weight:700; }
-    .dark-btn { background:#0f172a; color:white; font-weight:700; }
-    .secondary-btn { background:#64748b; color:white; font-weight:700; }
-    .book-btn { display:block; width:100%; box-sizing:border-box; margin-top:10px; padding:14px; background:linear-gradient(135deg,#2563eb,#60a5fa); color:white; border-radius:14px; text-decoration:none; text-align:center; font-weight:700; }
-    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns:1fr; } }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 16px;
+      color: #0f172a;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8, #0ea5e9);
+      color: white;
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .hero-kicker {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    input, select, button, textarea {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      font-size: 16px;
+      box-sizing: border-box;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .note {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .zone-box {
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+      color: #155e75;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .summary-total {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      color: #1e3a8a;
+    }
+
+    .muted {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 0.08em;
+    }
+
+    .big {
+      font-size: 30px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .addon {
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .inline-check {
+      width: auto;
+      margin-right: 8px;
+      margin-bottom: 0;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      color: white;
+      font-weight: 700;
+    }
+
+    .dark-btn {
+      background: #0f172a;
+      color: white;
+      font-weight: 700;
+    }
+
+    .secondary-btn {
+      background: #64748b;
+      color: white;
+      font-weight: 700;
+    }
+
+    .book-btn {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 10px;
+      padding: 14px;
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      color: white;
+      border-radius: 14px;
+      text-decoration: none;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
+
     <div class="hero">
       <div class="hero-kicker">Instant Inspection Quote</div>
-      <h1 style="margin:8px 0 6px 0;">Impact Property Inspections</h1>
-      <p style="margin:0; opacity:.92; line-height:1.5;">ZIP-based home inspection pricing with property type, square footage, add-ons, deposit, and booking flow.</p>
+      <h1>Impact Property Inspections</h1>
+      <p>Home inspection pricing based on ZIP code, property type, square footage, and selected add-ons.</p>
     </div>
 
     <div class="card">
       <h2>Customer Information</h2>
+
       <div class="grid-2">
         <div>
           <label for="customerName">Customer Name</label>
           <input id="customerName" placeholder="Enter customer name" />
         </div>
+
         <div>
           <label for="customerPhone">Phone Number</label>
           <input id="customerPhone" placeholder="Enter phone number" />
         </div>
       </div>
+
       <label for="customerAddress">Property Address</label>
       <input id="customerAddress" placeholder="Enter property address" />
     </div>
@@ -58,11 +211,14 @@
     <div class="card">
       <h2>1. Property ZIP Code</h2>
       <input id="zip" placeholder="Enter property ZIP code" />
-      <div class="zone-box" id="zoneBox">Enter a ZIP code to confirm service area and pricing zone.</div>
+      <div class="zone-box" id="zoneBox">
+        Enter a ZIP code to confirm service area and pricing zone.
+      </div>
     </div>
 
     <div class="card hidden" id="propertyCard">
       <h2>2. Property Details</h2>
+
       <div class="grid-2">
         <div>
           <label for="propertyType">Property Type</label>
@@ -71,6 +227,7 @@
             <option value="condo">Condo / Townhome</option>
           </select>
         </div>
+
         <div>
           <label for="stories">Stories</label>
           <select id="stories">
@@ -80,89 +237,124 @@
           </select>
         </div>
       </div>
+
       <div class="grid-2">
         <div>
           <label for="sqft">Square Footage</label>
           <input id="sqft" type="number" min="0" placeholder="Enter square footage" />
         </div>
+
         <div>
           <label for="yearBuilt">Year Built</label>
           <input id="yearBuilt" type="number" min="1800" placeholder="Optional" />
         </div>
       </div>
+
       <div class="note" id="timingNote">
-        Scheduling estimate will appear here after property details are entered.
+        Enter square footage to see estimated inspection time.
       </div>
     </div>
 
     <div class="card hidden" id="addonsCard">
       <h2>3. Add-Ons</h2>
+
       <div class="addon">
-        <label><input class="inline-check addon-check" type="checkbox" data-addon="sewer" /> Sewer Scope Inspection</label>
+        <label>
+          <input class="inline-check addon-check" type="checkbox" data-addon="sewer" />
+          Sewer Scope Inspection
+        </label>
       </div>
+
       <div class="addon">
-        <label><input class="inline-check addon-check" type="checkbox" data-addon="termite" /> Termite / Wood Destroying Organism Inspection</label>
+        <label>
+          <input class="inline-check addon-check" type="checkbox" data-addon="termite" />
+          Termite / Wood Destroying Organism Inspection
+        </label>
       </div>
+
       <div class="addon">
-        <label><input class="inline-check addon-check" type="checkbox" data-addon="mold" /> Mold / Moisture Assessment</label>
+        <label>
+          <input class="inline-check addon-check" type="checkbox" data-addon="mold" />
+          Mold / Moisture Assessment
+        </label>
       </div>
+
       <div class="addon">
-        <label><input class="inline-check addon-check" type="checkbox" data-addon="thermal" /> Thermal Imaging</label>
+        <label>
+          <input class="inline-check addon-check" type="checkbox" data-addon="thermal" />
+          Thermal Imaging
+        </label>
       </div>
+
       <div class="addon">
-        <label><input class="inline-check addon-check" type="checkbox" data-addon="pool" /> Pool / Spa Inspection</label>
+        <label>
+          <input class="inline-check addon-check" type="checkbox" data-addon="pool" />
+          Pool / Spa Inspection
+        </label>
       </div>
+
       <div class="addon">
-        <label><input class="inline-check addon-check" type="checkbox" data-addon="rush" /> Rush / Priority Scheduling</label>
+        <label>
+          <input class="inline-check addon-check" type="checkbox" data-addon="rush" />
+          Rush / Priority Scheduling
+        </label>
       </div>
     </div>
 
-  <div class="card hidden" id="summaryCard">
-  <h2>4. Quote Summary</h2>
+    <div class="card hidden" id="summaryCard">
+      <h2>4. Quote Summary</h2>
 
-  <div class="grid-3">
-    <div class="summary-box">
-      <div class="muted">Base Inspection</div>
-      <div class="big" id="basePrice">$0.00</div>
+      <div class="grid-3">
+        <div class="summary-box">
+          <div class="muted">Base Inspection</div>
+          <div class="big" id="basePrice">$0.00</div>
+        </div>
+
+        <div class="summary-box">
+          <div class="muted">Add-Ons</div>
+          <div class="big" id="addOnsPrice">$0.00</div>
+        </div>
+
+        <div class="summary-box summary-total">
+          <div class="muted">Estimated Total</div>
+          <div class="big" id="totalPrice">$0.00</div>
+        </div>
+      </div>
+
+      <div class="note" id="summaryDetails">
+        Quote details will appear here.
+      </div>
+
+      <div class="note" id="bookingLogicNote">
+        Booking logic note will appear here.
+      </div>
+
+      <button class="primary-btn" onclick="generateQuote()">Generate Quote Text</button>
+
+      <textarea id="quoteOutput" rows="10" placeholder="Quote text will appear here"></textarea>
+
+      <div class="grid-2">
+        <button class="dark-btn" onclick="openTextMessage()">Open Text Message</button>
+        <button class="secondary-btn" onclick="copyQuote()">Copy Quote</button>
+      </div>
+
+      <a class="book-btn" id="bookLink" href="#" target="_blank">
+        Book Inspection
+      </a>
+
+      <div id="copyStatus" style="margin-top:8px; font-size:14px; font-weight:700; color:#1d4ed8;"></div>
     </div>
 
-    <div class="summary-box">
-      <div class="muted">Add-Ons</div>
-      <div class="big" id="addOnsPrice">$0.00</div>
-    </div>
-
-    <div class="summary-box summary-total">
-      <div class="muted">Estimated Total</div>
-      <div class="big" id="totalPrice">$0.00</div>
-    </div>
-  </div>
-
-  <div class="note" id="summaryDetails">
-    Quote details will appear here.
-  </div>
-
-  <div class="note" id="bookingLogicNote" style="margin-top:10px;">
-    Booking logic note will appear here.
-  </div>
-
-  <button class="primary-btn" onclick="generateQuote()">Generate Quote Text</button>
-
-  <textarea id="quoteOutput" rows="10" placeholder="Quote text will appear here"></textarea>
-
-  <div class="grid-2">
-    <button class="dark-btn" onclick="openTextMessage()">Open Text Message</button>
-    <button class="secondary-btn" onclick="copyQuote()">Copy Quote</button>
-  </div>
-
-  <a class="book-btn" id="bookLink" href="#" target="_blank">
-    Book Inspection
-  </a>
-
-  <div id="copyStatus" style="margin-top:8px; font-size:14px; font-weight:700; color:#1d4ed8;"></div>
-</div>
   </div>
 
   <script>
+    const calendlyLinks = {
+      small: "https://calendly.com/mobileonsitehandyman/condo-small-home",
+      standard: "https://calendly.com/mobileonsitehandyman/standard-home-1500-2600-sf",
+      large: "https://calendly.com/mobileonsitehandyman/large-home-2901-to-5000-sf",
+      repair: "https://calendly.com/mobileonsitehandyman/handyman-service-appointment"
+    };
+
     const zoneExactZips = {
       1: ["92543","92544","92545","92551","92552","92553","92554","92555","92556","92557","92570","92571"],
       2: ["92313","92324","92335","92336","92337","92346","92373","92376","92401","92403","92404","92405","92407","92408","92501","92503","92504","92505","92506","92507","92508","92509","92584","92585","92586","92595","92879","92880","92881","92882","92883"],
@@ -175,10 +367,30 @@
     };
 
     const zoneMeta = {
-      1: { name: "Zone 1", label: "Budget / Volume", multiplier: 1.00, cluster: "Riverside Core" },
-      2: { name: "Zone 2", label: "Standard Inland", multiplier: 1.12, cluster: "Riverside / San Bernardino Core" },
-      3: { name: "Zone 3", label: "Premium Inland", multiplier: 1.28, cluster: "South IE / Premium Inland" },
-      4: { name: "Zone 4", label: "Coastal / High-End", multiplier: 1.45, cluster: "Coastal / Premium" }
+      1: {
+        name: "Zone 1",
+        label: "Budget / Volume",
+        multiplier: 1.00,
+        cluster: "Riverside Core"
+      },
+      2: {
+        name: "Zone 2",
+        label: "Standard Inland",
+        multiplier: 1.12,
+        cluster: "Riverside / San Bernardino Core"
+      },
+      3: {
+        name: "Zone 3",
+        label: "Premium Inland",
+        multiplier: 1.28,
+        cluster: "South IE / Premium Inland"
+      },
+      4: {
+        name: "Zone 4",
+        label: "Coastal / High-End",
+        multiplier: 1.45,
+        cluster: "Coastal / Premium"
+      }
     };
 
     const addOnPricing = {
@@ -192,23 +404,42 @@
 
     function zipToZone(zip) {
       const digits = (zip || "").replace(/\D/g, "");
-      if (digits.length < 5) return null;
 
-      for (const zone in zoneExactZips) {
-        if (zoneExactZips[zone].includes(digits)) return { zoneNumber: zone, ...zoneMeta[zone] };
+      if (digits.length < 5) {
+        return null;
       }
 
-      for (const zone in zonePrefixRanges) {
-        for (const prefix of zonePrefixRanges[zone]) {
-          if (digits.startsWith(prefix)) return { zoneNumber: zone, ...zoneMeta[zone] };
+      for (const zone in zoneExactZips) {
+        if (zoneExactZips[zone].includes(digits)) {
+          return {
+            zoneNumber: zone,
+            ...zoneMeta[zone]
+          };
         }
       }
 
-      return { zoneNumber: "1", ...zoneMeta[1] };
+      for (const zone in zonePrefixRanges) {
+        const prefixes = zonePrefixRanges[zone] || [];
+        if (prefixes.some(prefix => digits.startsWith(prefix))) {
+          return {
+            zoneNumber: zone,
+            ...zoneMeta[zone]
+          };
+        }
+      }
+
+      return {
+        zoneNumber: "1",
+        ...zoneMeta[1]
+      };
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value || 0);
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(value || 0);
     }
 
     function getBaseInspectionPrice(propertyType, sqft) {
@@ -231,121 +462,140 @@
       return 1150;
     }
 
-    function getDurationLabel(propertyType, sqft, stories) {
+    function getDurationInfo(propertyType, sqft, stories) {
       const sf = Number(sqft || 0);
       const storyCount = Number(stories || 1);
 
       if (propertyType === "condo") {
-        return { label: "3 to 3.5 hour inspection window", type: "condo_3hr" };
+        return {
+          type: "small",
+          label: "3 to 3.5 hour inspection window",
+          link: calendlyLinks.small
+        };
       }
 
-      if (sf >= 2800 && storyCount >= 2) {
-        return { label: "6 hour inspection window", type: "large_home_6hr" };
+      if (sf >= 2901 || (sf >= 2800 && storyCount >= 2)) {
+        return {
+          type: "large",
+          label: "6 hour inspection window",
+          link: calendlyLinks.large
+        };
       }
 
       if (sf < 1500) {
-        return { label: "3 to 3.5 hour inspection window", type: "small_home_3hr" };
+        return {
+          type: "small",
+          label: "3 to 3.5 hour inspection window",
+          link: calendlyLinks.small
+        };
       }
 
-      return { label: "4.5 hour inspection window", type: "standard_home_4_5hr" };
+      return {
+        type: "standard",
+        label: "4 hour inspection window",
+        link: calendlyLinks.standard
+      };
     }
 
     function getSelectedAddOnsTotal() {
       let total = 0;
-      document.querySelectorAll('.addon-check').forEach(cb => {
-        if (cb.checked) total += addOnPricing[cb.dataset.addon] || 0;
+
+      document.querySelectorAll(".addon-check").forEach(cb => {
+        if (cb.checked) {
+          total += addOnPricing[cb.dataset.addon] || 0;
+        }
       });
+
       return total;
     }
 
-   function updateQuote() {
-  const zip = document.getElementById('zip').value.trim();
-  const zone = zipToZone(zip);
-  const propertyType = document.getElementById('propertyType').value;
-  const sqft = Number(document.getElementById('sqft').value || 0);
-  const stories = Number(document.getElementById('stories').value || 1);
+    function getSelectedAddOnsText() {
+      const selected = [];
 
-  const propertyCard = document.getElementById('propertyCard');
-  const addonsCard = document.getElementById('addonsCard');
-  const summaryCard = document.getElementById('summaryCard');
-  const zoneBox = document.getElementById('zoneBox');
+      document.querySelectorAll(".addon-check").forEach(cb => {
+        if (cb.checked) {
+          selected.push(cb.parentElement.textContent.trim());
+        }
+      });
 
-  if (!zip || !zone) {
-    propertyCard.classList.add('hidden');
-    addonsCard.classList.add('hidden');
-    summaryCard.classList.add('hidden');
-    zoneBox.textContent = 'Enter a ZIP code to confirm service area and pricing zone.';
-    return;
-  }
+      return selected;
+    }
 
-  propertyCard.classList.remove('hidden');
-  addonsCard.classList.remove('hidden');
-  summaryCard.classList.remove('hidden');
-  zoneBox.textContent = `${zone.name} • ${zone.label} • ${zone.cluster} • Multiplier ${zone.multiplier.toFixed(2)}x`;
+    function updateQuote() {
+      const zip = document.getElementById("zip").value.trim();
+      const zone = zipToZone(zip);
+      const propertyType = document.getElementById("propertyType").value;
+      const sqft = Number(document.getElementById("sqft").value || 0);
+      const stories = Number(document.getElementById("stories").value || 1);
 
-  const timing = getDurationLabel(propertyType, sqft, stories);
-  document.getElementById('timingNote').textContent = sqft
-    ? `Estimated field time: ${timing.label}. First inspection of the day should set the area cluster; second inspection should stay nearby.`
-    : 'Enter square footage to see estimated inspection time.';
+      const propertyCard = document.getElementById("propertyCard");
+      const addonsCard = document.getElementById("addonsCard");
+      const summaryCard = document.getElementById("summaryCard");
+      const zoneBox = document.getElementById("zoneBox");
 
-  const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
-  const base = rawBase ? Math.round(rawBase * zone.multiplier) : 0;
-  const addOns = getSelectedAddOnsTotal();
-  const total = base + addOns;
+      if (!zip || !zone) {
+        propertyCard.classList.add("hidden");
+        addonsCard.classList.add("hidden");
+        summaryCard.classList.add("hidden");
+        zoneBox.textContent = "Enter a ZIP code to confirm service area and pricing zone.";
+        return;
+      }
 
-  document.getElementById('basePrice').textContent = formatCurrency(base);
-  document.getElementById('addOnsPrice').textContent = formatCurrency(addOns);
-  document.getElementById('totalPrice').textContent = formatCurrency(total);
+      propertyCard.classList.remove("hidden");
+      addonsCard.classList.remove("hidden");
+      summaryCard.classList.remove("hidden");
 
-  document.getElementById('summaryDetails').innerHTML = `
-    Property Type: ${propertyType === 'condo' ? 'Condo / Townhome' : 'Single Family Home'}<br>
-    Square Feet: ${sqft || 'Not entered'}<br>
-    Stories: ${stories}<br>
-    Zone: ${zone.name} - ${zone.label}<br>
-    Booking Type: ${timing.label}
-  `;
+      zoneBox.textContent = `${zone.name} • ${zone.label} • ${zone.cluster} • Multiplier ${zone.multiplier.toFixed(2)}x`;
 
-  document.getElementById('bookingLogicNote').innerHTML = `
-    <strong>Scheduling rule:</strong> First inspection booked for a day sets that day's area cluster.<br>
-    <strong>Current cluster:</strong> ${zone.cluster}<br>
-    <strong>Capacity target:</strong> Up to 2 inspections per day, unless this property requires the full day.
-  `;
+      const duration = getDurationInfo(propertyType, sqft, stories);
 
-  let bookingLink = "";
+      document.getElementById("timingNote").textContent = sqft
+        ? `Estimated field time: ${duration.label}. First inspection of the day should set the area cluster; second inspection should stay nearby.`
+        : "Enter square footage to see estimated inspection time.";
 
-  if (timing.type === "condo_3hr" || timing.type === "small_home_3hr") {
-    bookingLink = "PASTE_YOUR_CONDO_SMALL_HOME_LINK_HERE";
-  } else if (timing.type === "standard_home_4_5hr") {
-    bookingLink = "PASTE_YOUR_STANDARD_HOME_LINK_HERE";
-  } else {
-    bookingLink = "PASTE_YOUR_LARGE_HOME_LINK_HERE";
-  }
+      const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
+      const base = rawBase ? Math.round(rawBase * zone.multiplier) : 0;
+      const addOns = getSelectedAddOnsTotal();
+      const total = base + addOns;
 
-  document.getElementById('bookLink').href = bookingLink;
-}
-      document.getElementById('bookingLogicNote').innerHTML = `
+      document.getElementById("basePrice").textContent = formatCurrency(base);
+      document.getElementById("addOnsPrice").textContent = formatCurrency(addOns);
+      document.getElementById("totalPrice").textContent = formatCurrency(total);
+
+      document.getElementById("summaryDetails").innerHTML = `
+        Property Type: ${propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}<br>
+        Square Feet: ${sqft || "Not entered"}<br>
+        Stories: ${stories}<br>
+        Zone: ${zone.name} - ${zone.label}<br>
+        Booking Type: ${duration.label}
+      `;
+
+      document.getElementById("bookingLogicNote").innerHTML = `
         <strong>Scheduling rule:</strong> First inspection booked for a day sets that day's area cluster.<br>
         <strong>Current cluster:</strong> ${zone.cluster}<br>
         <strong>Capacity target:</strong> Up to 2 inspections per day, unless this property requires the full day.
       `;
+
+      document.getElementById("bookLink").href = duration.link;
     }
 
     function generateQuote() {
-      const customerName = document.getElementById('customerName').value || 'Customer';
-      const customerPhone = document.getElementById('customerPhone').value || '';
-      const customerAddress = document.getElementById('customerAddress').value || '';
-      const zip = document.getElementById('zip').value || '';
+      const customerName = document.getElementById("customerName").value || "Customer";
+      const customerPhone = document.getElementById("customerPhone").value || "";
+      const customerAddress = document.getElementById("customerAddress").value || "";
+      const zip = document.getElementById("zip").value || "";
       const zone = zipToZone(zip);
-      const propertyType = document.getElementById('propertyType').value;
-      const sqft = Number(document.getElementById('sqft').value || 0);
-      const stories = Number(document.getElementById('stories').value || 1);
-      const timing = getDurationLabel(propertyType, sqft, stories);
-      const total = document.getElementById('totalPrice').textContent;
 
-      const chosenAddOns = [];
-      document.querySelectorAll('.addon-check').forEach(cb => {
-        if (cb.checked) chosenAddOns.push(cb.parentElement.textContent.trim());
-      });
+      const propertyType = document.getElementById("propertyType").value;
+      const sqft = Number(document.getElementById("sqft").value || 0);
+      const stories = Number(document.getElementById("stories").value || 1);
+      const duration = getDurationInfo(propertyType, sqft, stories);
+      const total = document.getElementById("totalPrice").textContent;
+      const selectedAddOns = getSelectedAddOnsText();
+
+      const addOnText = selectedAddOns.length
+        ? `Add-Ons: ${selectedAddOns.join(", ")}\n`
+        : "";
 
       const text =
         `Hi ${customerName},\n\n` +
@@ -354,42 +604,60 @@
         `Property: ${customerAddress}\n` +
         `ZIP Code: ${zip}\n` +
         `Phone: ${customerPhone}\n` +
-        `Property Type: ${propertyType === 'condo' ? 'Condo / Townhome' : 'Single Family Home'}\n` +
-        `Square Feet: ${sqft || 'TBD'}\n` +
+        `Property Type: ${propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
+        `Square Feet: ${sqft || "TBD"}\n` +
         `Stories: ${stories}\n` +
-        `Service Area: ${zone ? zone.cluster : 'TBD'}\n` +
-        `Inspection Window: ${timing.label}\n` +
-        `${chosenAddOns.length ? `Add-Ons: ${chosenAddOns.join(', ')}\n` : ''}\n` +
-        `Estimated Total: ${total}\n\n` +
-        `A deposit is required to reserve your appointment and will be applied toward your inspection total.\n\n` +
-        `Thanks,\nTim\nImpact Property Inspections`;
+        `Service Area: ${zone ? zone.cluster : "TBD"}\n` +
+        `Inspection Window: ${duration.label}\n` +
+        addOnText +
+        `\nEstimated Total: ${total}\n\n` +
+        `A deposit is required to reserve your inspection appointment and will be applied toward your inspection total.\n\n` +
+        `Thanks,\n` +
+        `Tim\n` +
+        `Impact Property Inspections`;
 
-      document.getElementById('quoteOutput').value = text;
+      document.getElementById("quoteOutput").value = text;
     }
 
     function openTextMessage() {
-      const customerPhone = document.getElementById('customerPhone').value || '';
-      const quoteText = document.getElementById('quoteOutput').value || '';
-      if (!quoteText || !customerPhone) return;
-      const cleanedPhone = customerPhone.replace(/\D/g, '');
-      window.location.href = 'sms:' + cleanedPhone + '?body=' + encodeURIComponent(quoteText);
+      const customerPhone = document.getElementById("customerPhone").value || "";
+      const quoteText = document.getElementById("quoteOutput").value || "";
+
+      if (!quoteText) {
+        alert("Generate the quote first.");
+        return;
+      }
+
+      if (!customerPhone) {
+        alert("Enter customer phone number.");
+        return;
+      }
+
+      const cleanedPhone = customerPhone.replace(/\D/g, "");
+      window.location.href = "sms:" + cleanedPhone + "?body=" + encodeURIComponent(quoteText);
     }
 
     function copyQuote() {
-      const text = document.getElementById('quoteOutput').value;
+      const text = document.getElementById("quoteOutput").value;
+      const status = document.getElementById("copyStatus");
+
       if (!text) {
-        document.getElementById('copyStatus').textContent = 'Generate the quote first.';
+        status.textContent = "Generate the quote first.";
         return;
       }
+
       navigator.clipboard.writeText(text);
-      document.getElementById('copyStatus').textContent = 'Quote copied';
+      status.textContent = "Quote copied";
     }
 
-    document.getElementById('zip').addEventListener('input', updateQuote);
-    document.getElementById('propertyType').addEventListener('change', updateQuote);
-    document.getElementById('stories').addEventListener('change', updateQuote);
-    document.getElementById('sqft').addEventListener('input', updateQuote);
-    document.querySelectorAll('.addon-check').forEach(cb => cb.addEventListener('change', updateQuote));
+    document.getElementById("zip").addEventListener("input", updateQuote);
+    document.getElementById("propertyType").addEventListener("change", updateQuote);
+    document.getElementById("stories").addEventListener("change", updateQuote);
+    document.getElementById("sqft").addEventListener("input", updateQuote);
+
+    document.querySelectorAll(".addon-check").forEach(cb => {
+      cb.addEventListener("change", updateQuote);
+    });
 
     updateQuote();
   </script>
