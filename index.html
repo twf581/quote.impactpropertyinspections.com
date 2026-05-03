@@ -190,25 +190,58 @@
     </div>
 
     <div class="card">
-      <h2>Customer Information</h2>
+      <h2>Client / Buyer Information</h2>
 
       <div class="grid-2">
         <div>
-          <label for="customerName">Customer Name</label>
-          <input id="customerName" placeholder="Enter customer name" />
+          <label for="buyerName">Buyer Name</label>
+          <input id="buyerName" placeholder="Enter buyer/client name" />
         </div>
 
         <div>
-          <label for="customerPhone">Phone Number</label>
-          <input id="customerPhone" placeholder="Enter phone number" />
+          <label for="buyerPhone">Buyer Phone</label>
+          <input id="buyerPhone" placeholder="Enter buyer/client phone" />
         </div>
       </div>
 
-      <label for="customerAddress">Property Address</label>
-      <input id="customerAddress" placeholder="Enter property address" />
+      <label for="buyerEmail">Buyer Email</label>
+      <input id="buyerEmail" type="email" placeholder="Enter buyer/client email" />
     </div>
 
     <div class="card">
+      <h2>Realtor / Agent Information</h2>
+
+      <div class="grid-2">
+        <div>
+          <label for="agentName">Agent Name</label>
+          <input id="agentName" placeholder="Enter realtor/agent name" />
+        </div>
+
+        <div>
+          <label for="agentPhone">Agent Phone</label>
+          <input id="agentPhone" placeholder="Enter realtor/agent phone" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="agentEmail">Agent Email</label>
+          <input id="agentEmail" type="email" placeholder="Enter realtor/agent email" />
+        </div>
+
+        <div>
+          <label for="brokerage">Brokerage</label>
+          <input id="brokerage" placeholder="Optional" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Property Information</h2>
+
+      <label for="customerAddress">Property Address</label>
+      <input id="customerAddress" placeholder="Enter property address" />
+
       <h2>1. Property ZIP Code</h2>
       <input id="zip" placeholder="Enter property ZIP code" />
       <div class="zone-box" id="zoneBox">
@@ -247,6 +280,22 @@
         <div>
           <label for="yearBuilt">Year Built</label>
           <input id="yearBuilt" type="number" min="1800" placeholder="Optional" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="occupancy">Occupancy Status</label>
+          <select id="occupancy">
+            <option value="Unknown">Unknown</option>
+            <option value="Occupied">Occupied</option>
+            <option value="Vacant">Vacant</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="accessNotes">Access Notes</label>
+          <input id="accessNotes" placeholder="Gate code, lockbox, pets, tenant, etc." />
         </div>
       </div>
 
@@ -329,14 +378,18 @@
         Booking logic note will appear here.
       </div>
 
-      <button class="primary-btn" onclick="generateQuote()">Generate Quote Text</button>
+      <button class="primary-btn" onclick="generateQuote()">Generate Client Quote Text</button>
+      <textarea id="quoteOutput" rows="10" placeholder="Client quote text will appear here"></textarea>
 
-      <textarea id="quoteOutput" rows="10" placeholder="Quote text will appear here"></textarea>
+      <button class="primary-btn" onclick="generateSpectoraIntake()">Generate Spectora Intake Summary</button>
+      <textarea id="spectoraOutput" rows="16" placeholder="Spectora intake summary will appear here"></textarea>
 
       <div class="grid-2">
         <button class="dark-btn" onclick="openTextMessage()">Open Text Message</button>
-        <button class="secondary-btn" onclick="copyQuote()">Copy Quote</button>
+        <button class="secondary-btn" onclick="copyQuote()">Copy Client Quote</button>
       </div>
+
+      <button class="secondary-btn" onclick="copySpectoraIntake()">Copy Spectora Intake</button>
 
       <a class="book-btn" id="bookLink" href="#" target="_blank">
         Book Inspection
@@ -366,32 +419,32 @@
       4: ["900","901","902","903","904","905","906","907","908","910","911","912","913","914","915","916","918"]
     };
 
-  const zoneMeta = {
-  1: {
-    name: "Zone 1",
-    label: "Local Service Area",
-    multiplier: 1.00,
-    cluster: "Local Service Area"
-  },
-  2: {
-    name: "Zone 2",
-    label: "Standard Service Area",
-    multiplier: 1.12,
-    cluster: "Standard Service Area"
-  },
-  3: {
-    name: "Zone 3",
-    label: "Extended Service Area",
-    multiplier: 1.28,
-    cluster: "Extended Service Area"
-  },
-  4: {
-    name: "Zone 4",
-    label: "Coastal Service Area",
-    multiplier: 1.45,
-    cluster: "Coastal Service Area"
-  }
-}; 
+    const zoneMeta = {
+      1: {
+        name: "Zone 1",
+        label: "Local Service Area",
+        multiplier: 1.00,
+        cluster: "Local Service Area"
+      },
+      2: {
+        name: "Zone 2",
+        label: "Standard Service Area",
+        multiplier: 1.12,
+        cluster: "Standard Service Area"
+      },
+      3: {
+        name: "Zone 3",
+        label: "Extended Service Area",
+        multiplier: 1.28,
+        cluster: "Extended Service Area"
+      },
+      4: {
+        name: "Zone 4",
+        label: "Coastal Service Area",
+        multiplier: 1.45,
+        cluster: "Coastal Service Area"
+      }
+    };
 
     const addOnPricing = {
       sewer: 225,
@@ -521,6 +574,40 @@
       return selected;
     }
 
+    function getFormData() {
+      const zip = document.getElementById("zip").value || "";
+      const zone = zipToZone(zip);
+      const propertyType = document.getElementById("propertyType").value;
+      const sqft = Number(document.getElementById("sqft").value || 0);
+      const stories = Number(document.getElementById("stories").value || 1);
+      const duration = getDurationInfo(propertyType, sqft, stories);
+      const selectedAddOns = getSelectedAddOnsText();
+
+      return {
+        buyerName: document.getElementById("buyerName").value || "",
+        buyerPhone: document.getElementById("buyerPhone").value || "",
+        buyerEmail: document.getElementById("buyerEmail").value || "",
+        agentName: document.getElementById("agentName").value || "",
+        agentPhone: document.getElementById("agentPhone").value || "",
+        agentEmail: document.getElementById("agentEmail").value || "",
+        brokerage: document.getElementById("brokerage").value || "",
+        propertyAddress: document.getElementById("customerAddress").value || "",
+        zip,
+        zone,
+        propertyType,
+        sqft,
+        stories,
+        yearBuilt: document.getElementById("yearBuilt").value || "",
+        occupancy: document.getElementById("occupancy").value || "Unknown",
+        accessNotes: document.getElementById("accessNotes").value || "",
+        duration,
+        selectedAddOns,
+        total: document.getElementById("totalPrice").textContent,
+        base: document.getElementById("basePrice").textContent,
+        addOnsPrice: document.getElementById("addOnsPrice").textContent
+      };
+    }
+
     function updateQuote() {
       const zip = document.getElementById("zip").value.trim();
       const zone = zipToZone(zip);
@@ -545,12 +632,12 @@
       addonsCard.classList.remove("hidden");
       summaryCard.classList.remove("hidden");
 
-      zoneBox.textContent = `${zone.name} • ${zone.label} • ${zone.cluster} • Multiplier ${zone.multiplier.toFixed(2)}x`;
+      zoneBox.textContent = `${zone.name} • ${zone.label} • Multiplier ${zone.multiplier.toFixed(2)}x`;
 
       const duration = getDurationInfo(propertyType, sqft, stories);
 
       document.getElementById("timingNote").textContent = sqft
-        ? `Estimated field time: ${duration.label}. First inspection of the day should set the area cluster; second inspection should stay nearby.`
+        ? `Estimated field time: ${duration.label}. First inspection of the day should set the service area; second inspection should stay nearby.`
         : "Enter square footage to see estimated inspection time.";
 
       const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
@@ -571,8 +658,8 @@
       `;
 
       document.getElementById("bookingLogicNote").innerHTML = `
-        <strong>Scheduling rule:</strong> First inspection booked for a day sets that day's area cluster.<br>
-        <strong>Current cluster:</strong> ${zone.cluster}<br>
+        <strong>Scheduling rule:</strong> First inspection booked for a day helps determine nearby scheduling availability.<br>
+        <strong>Service area:</strong> ${zone.cluster}<br>
         <strong>Capacity target:</strong> Up to 2 inspections per day, unless this property requires the full day.
       `;
 
@@ -580,37 +667,23 @@
     }
 
     function generateQuote() {
-      const customerName = document.getElementById("customerName").value || "Customer";
-      const customerPhone = document.getElementById("customerPhone").value || "";
-      const customerAddress = document.getElementById("customerAddress").value || "";
-      const zip = document.getElementById("zip").value || "";
-      const zone = zipToZone(zip);
-
-      const propertyType = document.getElementById("propertyType").value;
-      const sqft = Number(document.getElementById("sqft").value || 0);
-      const stories = Number(document.getElementById("stories").value || 1);
-      const duration = getDurationInfo(propertyType, sqft, stories);
-      const total = document.getElementById("totalPrice").textContent;
-      const selectedAddOns = getSelectedAddOnsText();
-
-      const addOnText = selectedAddOns.length
-        ? `Add-Ons: ${selectedAddOns.join(", ")}\n`
+      const data = getFormData();
+      const addOnText = data.selectedAddOns.length
+        ? `Add-Ons: ${data.selectedAddOns.join(", ")}\n`
         : "";
 
       const text =
-        `Hi ${customerName},\n\n` +
+        `Hi ${data.buyerName || "Customer"},\n\n` +
         `This is Tim with Impact Property Inspections.\n\n` +
         `Here is your inspection quote:\n\n` +
-        `Property: ${customerAddress}\n` +
-        `ZIP Code: ${zip}\n` +
-        `Phone: ${customerPhone}\n` +
-        `Property Type: ${propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
-        `Square Feet: ${sqft || "TBD"}\n` +
-        `Stories: ${stories}\n` +
-        `Service Area: ${zone ? zone.cluster : "TBD"}\n` +
-        `Inspection Window: ${duration.label}\n` +
+        `Property: ${data.propertyAddress}\n` +
+        `ZIP Code: ${data.zip}\n` +
+        `Property Type: ${data.propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
+        `Square Feet: ${data.sqft || "TBD"}\n` +
+        `Stories: ${data.stories}\n` +
+        `Inspection Window: ${data.duration.label}\n` +
         addOnText +
-        `\nEstimated Total: ${total}\n\n` +
+        `\nEstimated Total: ${data.total}\n\n` +
         `A deposit is required to reserve your inspection appointment and will be applied toward your inspection total.\n\n` +
         `Thanks,\n` +
         `Tim\n` +
@@ -619,8 +692,47 @@
       document.getElementById("quoteOutput").value = text;
     }
 
+    function generateSpectoraIntake() {
+      const data = getFormData();
+      const addOnText = data.selectedAddOns.length ? data.selectedAddOns.join(", ") : "None selected";
+
+      const text =
+        `SPECTORA INTAKE SUMMARY\n\n` +
+        `CLIENT / BUYER\n` +
+        `Name: ${data.buyerName}\n` +
+        `Phone: ${data.buyerPhone}\n` +
+        `Email: ${data.buyerEmail}\n\n` +
+        `REALTOR / AGENT\n` +
+        `Name: ${data.agentName}\n` +
+        `Phone: ${data.agentPhone}\n` +
+        `Email: ${data.agentEmail}\n` +
+        `Brokerage: ${data.brokerage}\n\n` +
+        `PROPERTY\n` +
+        `Address: ${data.propertyAddress}\n` +
+        `ZIP: ${data.zip}\n` +
+        `Year Built: ${data.yearBuilt}\n` +
+        `Property Type: ${data.propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
+        `Square Feet: ${data.sqft || "TBD"}\n` +
+        `Stories: ${data.stories}\n` +
+        `Occupancy: ${data.occupancy}\n` +
+        `Access Notes: ${data.accessNotes}\n\n` +
+        `INSPECTION / PRICING\n` +
+        `Service Area: ${data.zone ? data.zone.cluster : "TBD"}\n` +
+        `Inspection Window: ${data.duration.label}\n` +
+        `Calendly Event Link: ${data.duration.link}\n` +
+        `Base Inspection: ${data.base}\n` +
+        `Add-Ons: ${addOnText}\n` +
+        `Add-Ons Total: ${data.addOnsPrice}\n` +
+        `Estimated Total: ${data.total}\n\n` +
+        `PAYMENT / BOOKING\n` +
+        `Deposit required through Calendly/Stripe before appointment is reserved.\n` +
+        `After booking, create inspection in Spectora and send agreement/report access to buyer and agent as needed.`;
+
+      document.getElementById("spectoraOutput").value = text;
+    }
+
     function openTextMessage() {
-      const customerPhone = document.getElementById("customerPhone").value || "";
+      const buyerPhone = document.getElementById("buyerPhone").value || "";
       const quoteText = document.getElementById("quoteOutput").value || "";
 
       if (!quoteText) {
@@ -628,12 +740,12 @@
         return;
       }
 
-      if (!customerPhone) {
-        alert("Enter customer phone number.");
+      if (!buyerPhone) {
+        alert("Enter buyer/client phone number.");
         return;
       }
 
-      const cleanedPhone = customerPhone.replace(/\D/g, "");
+      const cleanedPhone = buyerPhone.replace(/\D/g, "");
       window.location.href = "sms:" + cleanedPhone + "?body=" + encodeURIComponent(quoteText);
     }
 
@@ -642,18 +754,33 @@
       const status = document.getElementById("copyStatus");
 
       if (!text) {
-        status.textContent = "Generate the quote first.";
+        status.textContent = "Generate the client quote first.";
         return;
       }
 
       navigator.clipboard.writeText(text);
-      status.textContent = "Quote copied";
+      status.textContent = "Client quote copied";
+    }
+
+    function copySpectoraIntake() {
+      const text = document.getElementById("spectoraOutput").value;
+      const status = document.getElementById("copyStatus");
+
+      if (!text) {
+        status.textContent = "Generate the Spectora intake first.";
+        return;
+      }
+
+      navigator.clipboard.writeText(text);
+      status.textContent = "Spectora intake copied";
     }
 
     document.getElementById("zip").addEventListener("input", updateQuote);
     document.getElementById("propertyType").addEventListener("change", updateQuote);
     document.getElementById("stories").addEventListener("change", updateQuote);
     document.getElementById("sqft").addEventListener("input", updateQuote);
+    document.getElementById("yearBuilt").addEventListener("input", updateQuote);
+    document.getElementById("occupancy").addEventListener("change", updateQuote);
 
     document.querySelectorAll(".addon-check").forEach(cb => {
       cb.addEventListener("change", updateQuote);
