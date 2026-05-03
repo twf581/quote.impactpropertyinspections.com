@@ -550,7 +550,23 @@
         <strong>Capacity target:</strong> Up to 2 inspections per day, unless this property requires the full day.
       `;
 
-      document.getElementById("bookLink").href = duration.link;
+ const data = getFormData();
+
+const calendlyPrefill =
+  "?name=" + encodeURIComponent(data.buyerName) +
+  "&email=" + encodeURIComponent(data.buyerEmail) +
+  "&a1=" + encodeURIComponent(data.buyerPhone) +
+  "&a2=" + encodeURIComponent(data.agentName) +
+  "&a3=" + encodeURIComponent(data.agentPhone) +
+  "&a4=" + encodeURIComponent(data.agentEmail) +
+  "&a5=" + encodeURIComponent(data.brokerage) +
+  "&a6=" + encodeURIComponent(data.propertyAddress) +
+  "&a7=" + encodeURIComponent(data.zip) +
+  "&a8=" + encodeURIComponent(data.sqft || "TBD") +
+  "&a9=" + encodeURIComponent(data.selectedAddOns.join(", ") || "None") +
+  "&a10=" + encodeURIComponent(data.accessNotes);
+
+document.getElementById("bookLink").href = duration.link + calendlyPrefill;     
     }
 
     function generateQuote() {
