@@ -311,7 +311,6 @@
       </div>
 
       <div class="note" id="summaryDetails">Quote details will appear here.</div>
-      <div class="note" id="bookingLogicNote">Booking logic note will appear here.</div>
 
       <button class="primary-btn" onclick="generateQuote()">Generate Client Quote Text</button>
       <textarea id="quoteOutput" rows="10" placeholder="Client quote text will appear here"></textarea>
@@ -523,11 +522,11 @@
       addonsCard.classList.remove("hidden");
       summaryCard.classList.remove("hidden");
 
-      zoneBox.textContent = `${zone.name} • ${zone.label}`;
+      zoneBox.textContent = "Service area confirmed.";
 
       const duration = getDurationInfo(propertyType, sqft, stories);
       document.getElementById("timingNote").textContent = sqft
-        ? `Estimated field time: ${duration.label}. First inspection of the day should set the service area; second inspection should stay nearby.`
+        ? `Estimated field time: ${duration.label}.`
         : "Enter square footage to see estimated inspection time.";
 
       const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
@@ -545,14 +544,7 @@
         Property Type: ${propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}<br>
         Square Feet: ${sqft || "Not entered"}<br>
         Stories: ${stories}<br>
-        Zone: ${zone.name} - ${zone.label}<br>
         Booking Type: ${duration.label}
-      `;
-
-      document.getElementById("bookingLogicNote").innerHTML = `
-        <strong>Scheduling rule:</strong> First inspection booked for a day helps determine nearby scheduling availability.<br>
-        <strong>Service area:</strong> ${zone.cluster}<br>
-        <strong>Capacity target:</strong> Up to 2 inspections per day, unless this property requires the full day.
       `;
 
  const data = getFormData();
