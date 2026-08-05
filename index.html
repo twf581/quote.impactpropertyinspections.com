@@ -407,7 +407,7 @@
         }
       }
 
-      return { zoneNumber: "1", ...zoneMeta[1] };
+      return null;
     }
 
     function formatCurrency(value) {
@@ -439,7 +439,10 @@
     function getDurationInfo(propertyType, sqft, stories) {
       const sf = Number(sqft || 0);
       const storyCount = Number(stories || 1);
-      if (propertyType === "condo") return { type: "small", label: "3 to 3.5 hour inspection window", link: calendlyLinks.small };
+      if (propertyType === "condo") {
+        if (sf >= 2500) return { type: "standard", label: "4 hour inspection window", link: calendlyLinks.standard };
+        return { type: "small", label: "3 to 3.5 hour inspection window", link: calendlyLinks.small };
+      }
       if (sf >= 2901 || (sf >= 2800 && storyCount >= 2)) return { type: "large", label: "6 hour inspection window", link: calendlyLinks.large };
       if (sf < 1500) return { type: "small", label: "3 to 3.5 hour inspection window", link: calendlyLinks.small };
       return { type: "standard", label: "4 hour inspection window", link: calendlyLinks.standard };
@@ -510,7 +513,9 @@
         propertyCard.classList.add("hidden");
         addonsCard.classList.add("hidden");
         summaryCard.classList.add("hidden");
-        zoneBox.textContent = "Enter a ZIP code to confirm service area.";
+        zoneBox.textContent = zip
+          ? "This ZIP code is outside our current service area. Please call 951-388-4744 for a custom quote."
+          : "Enter a ZIP code to confirm service area.";
         return;
       }
 
@@ -571,6 +576,16 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
 
     function generateQuote() {
       const data = getFormData();
+
+      if (!data.zip || !data.zone) {
+        document.getElementById("copyStatus").textContent = "Enter a valid property ZIP code before generating the quote.";
+        return;
+      }
+
+      if (!data.sqft) {
+        document.getElementById("copyStatus").textContent = "Enter square footage before generating the quote.";
+        return;
+      }
       const addOnText = data.selectedAddOns.length ? `Add-Ons: ${data.selectedAddOns.join(", ")}\n` : "";
       const text =
         `Hi ${data.buyerName || "Customer"},\n\n` +
@@ -585,12 +600,23 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
         addOnText +
         `\nEstimated Total: ${data.total}\n\n` +
         `A deposit is required to reserve your inspection appointment and will be applied toward your inspection total.\n\n` +
+        `Impact Property Inspections operates under Mobile Onsite Handyman Services LLC.\n\n` +
         `Thanks,\nTim\nImpact Property Inspections`;
       document.getElementById("quoteOutput").value = text;
     }
 
     function generateSpectoraIntake() {
       const data = getFormData();
+
+      if (!data.zip || !data.zone) {
+        document.getElementById("copyStatus").textContent = "Enter a valid property ZIP code before generating the Spectora intake.";
+        return;
+      }
+
+      if (!data.sqft) {
+        document.getElementById("copyStatus").textContent = "Enter square footage before generating the Spectora intake.";
+        return;
+      }
       const addOnText = data.selectedAddOns.length ? data.selectedAddOns.join(", ") : "None selected";
       const text =
         `SPECTORA INTAKE SUMMARY\n\n` +
