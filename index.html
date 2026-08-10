@@ -170,6 +170,24 @@
       font-weight: 700;
     }
 
+    .price-breakdown {
+      font-size: 13px;
+      color: #475569;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .price-breakdown span.amt {
+      float: right;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .price-breakdown div {
+      display: flex;
+      justify-content: space-between;
+    }
+
     @media (max-width: 800px) {
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
@@ -181,7 +199,7 @@
     <div class="hero">
       <div class="hero-kicker">Instant Inspection Quote</div>
       <h1>Impact Property Inspections</h1>
-      <p>Home inspection pricing based on ZIP code, property type, square footage, and selected add-ons.</p>
+      <p>Home inspection pricing based on ZIP code, property type, square footage, bed/bath count, stories, and selected add-ons.</p>
     </div>
 
     <div class="card">
@@ -267,6 +285,17 @@
 
       <div class="grid-2">
         <div>
+          <label for="bedrooms">Bedrooms</label>
+          <input id="bedrooms" type="number" min="0" step="1" placeholder="e.g. 4" />
+        </div>
+        <div>
+          <label for="bathrooms">Bathrooms</label>
+          <input id="bathrooms" type="number" min="0" step="0.5" placeholder="e.g. 3.5" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
           <label for="occupancy">Occupancy Status</label>
           <select id="occupancy">
             <option value="Unknown">Unknown</option>
@@ -293,8 +322,14 @@
       <div class="addon"><label><input class="inline-check addon-check" type="checkbox" data-addon="rush" /> Rush / Priority Scheduling</label></div>
     </div>
 
+    <div class="card hidden" id="discountsCard">
+      <h2>4. Discounts</h2>
+      <div class="addon"><label><input class="inline-check" id="payInFullDiscount" type="checkbox" /> Pay in Full at Booking (5% discount)</label></div>
+      <div class="addon"><label><input class="inline-check" id="militaryDiscount" type="checkbox" /> Active Duty / Veteran Military (5% discount)</label></div>
+    </div>
+
     <div class="card hidden" id="summaryCard">
-      <h2>4. Quote Summary</h2>
+      <h2>5. Quote Summary</h2>
       <div class="grid-3">
         <div class="summary-box">
           <div class="muted">Base Inspection</div>
@@ -309,6 +344,8 @@
           <div class="big" id="totalPrice">$0.00</div>
         </div>
       </div>
+
+      <div class="price-breakdown" id="priceBreakdown"></div>
 
       <div class="note" id="summaryDetails">Quote details will appear here.</div>
 
@@ -389,6 +426,28 @@
       rush: 150
     };
 
+    // ---- Pricing formula constants ----
+    // Base scales smoothly with square footage instead of stepped tiers.
+    // Single-family: base = max(300, 225 + 0.15 * sqft)
+    // Condo/Townhome: base = max(225, 175 + 0.09 * sqft)
+    const BASE_SF_FLOOR = 300;
+    const BASE_SF_FIXED = 225;
+    const BASE_SF_RATE = 0.15;
+
+    const BASE_CONDO_FLOOR = 225;
+    const BASE_CONDO_FIXED = 175;
+    const BASE_CONDO_RATE = 0.09;
+
+    // Included bed/bath before extra fees kick in
+    const INCLUDED_BATHROOMS = 2.5;
+    const INCLUDED_BEDROOMS = 4;
+    const FEE_PER_EXTRA_BATH = 45;
+    const FEE_PER_EXTRA_BED = 35;
+    const FEE_PER_EXTRA_STORY = 60;
+
+    const PAY_IN_FULL_DISCOUNT_RATE = 0.05;
+    const MILITARY_DISCOUNT_RATE = 0.05;
+
     function zipToZone(zip) {
       const digits = (zip || "").replace(/\D/g, "");
       if (digits.length < 5) return null;
@@ -417,22 +476,34 @@
       }).format(value || 0);
     }
 
-    function getBaseInspectionPrice(propertyType, sqft) {
+    function roundToFive(value) {
+      return Math.round(value / 5) * 5;
+    }
+
+    function getRawBasePrice(propertyType, sqft) {
       const sf = Number(sqft || 0);
+      if (!sf) return 0;
       if (propertyType === "condo") {
-        if (sf < 1000) return 350;
-        if (sf < 1500) return 395;
-        if (sf < 2000) return 450;
-        return 495;
+        return roundToFive(Math.max(BASE_CONDO_FLOOR, BASE_CONDO_FIXED + BASE_CONDO_RATE * sf));
       }
-      if (sf < 1000) return 425;
-      if (sf < 1500) return 475;
-      if (sf < 2000) return 550;
-      if (sf < 2500) return 625;
-      if (sf < 2800) return 695;
-      if (sf < 3500) return 825;
-      if (sf < 4500) return 975;
-      return 1150;
+      return roundToFive(Math.max(BASE_SF_FLOOR, BASE_SF_FIXED + BASE_SF_RATE * sf));
+    }
+
+    function getBathroomFee(bathrooms) {
+      const baths = Number(bathrooms || 0);
+      if (!baths) return 0;
+      return roundToFive(Math.max(0, baths - INCLUDED_BATHROOMS) * FEE_PER_EXTRA_BATH);
+    }
+
+    function getBedroomFee(bedrooms) {
+      const beds = Number(bedrooms || 0);
+      if (!beds) return 0;
+      return roundToFive(Math.max(0, beds - INCLUDED_BEDROOMS) * FEE_PER_EXTRA_BED);
+    }
+
+    function getStoriesFee(stories) {
+      const storyCount = Number(stories || 1);
+      return roundToFive(Math.max(0, storyCount - 1) * FEE_PER_EXTRA_STORY);
     }
 
     function getDurationInfo(propertyType, sqft, stories) {
@@ -469,9 +540,19 @@
       const propertyType = document.getElementById("propertyType").value;
       const sqft = Number(document.getElementById("sqft").value || 0);
       const stories = Number(document.getElementById("stories").value || 1);
+      const bedrooms = Number(document.getElementById("bedrooms").value || 0);
+      const bathrooms = Number(document.getElementById("bathrooms").value || 0);
       const duration = getDurationInfo(propertyType, sqft, stories);
+      const payInFull = document.getElementById("payInFullDiscount").checked;
+      const military = document.getElementById("militaryDiscount").checked;
+      const discountLabels = [];
+      if (payInFull) discountLabels.push("Pay in Full at Booking (5%)");
+      if (military) discountLabels.push("Active Duty / Veteran Military (5%)");
 
       return {
+        payInFull,
+        military,
+        discountLabels,
         buyerName: document.getElementById("buyerName").value || "",
         buyerPhone: document.getElementById("buyerPhone").value || "",
         buyerEmail: document.getElementById("buyerEmail").value || "",
@@ -485,6 +566,8 @@
         propertyType,
         sqft,
         stories,
+        bedrooms,
+        bathrooms,
         yearBuilt: document.getElementById("yearBuilt").value || "",
         occupancy: document.getElementById("occupancy").value || "Unknown",
         accessNotes: document.getElementById("accessNotes").value || "",
@@ -502,15 +585,19 @@
       const propertyType = document.getElementById("propertyType").value;
       const sqft = Number(document.getElementById("sqft").value || 0);
       const stories = Number(document.getElementById("stories").value || 1);
+      const bedrooms = Number(document.getElementById("bedrooms").value || 0);
+      const bathrooms = Number(document.getElementById("bathrooms").value || 0);
 
       const propertyCard = document.getElementById("propertyCard");
       const addonsCard = document.getElementById("addonsCard");
+      const discountsCard = document.getElementById("discountsCard");
       const summaryCard = document.getElementById("summaryCard");
       const zoneBox = document.getElementById("zoneBox");
 
       if (!zip || !zone) {
         propertyCard.classList.add("hidden");
         addonsCard.classList.add("hidden");
+        discountsCard.classList.add("hidden");
         summaryCard.classList.add("hidden");
         zoneBox.textContent = zip
           ? "This ZIP code is outside our current service area. Please call 951-388-4744 for a custom quote."
@@ -520,6 +607,7 @@
 
       propertyCard.classList.remove("hidden");
       addonsCard.classList.remove("hidden");
+      discountsCard.classList.remove("hidden");
       summaryCard.classList.remove("hidden");
 
       zoneBox.textContent = "Service area confirmed.";
@@ -529,20 +617,51 @@
         ? `Estimated field time: ${duration.label}.`
         : "Enter square footage to see estimated inspection time.";
 
-      const rawBase = sqft ? getBaseInspectionPrice(propertyType, sqft) : 0;
+      const rawBase = getRawBasePrice(propertyType, sqft);
+      const isCondo = propertyType === "condo";
+      const bathroomFee = isCondo ? 0 : getBathroomFee(bathrooms);
+      const bedroomFee = isCondo ? 0 : getBedroomFee(bedrooms);
+      const storiesFee = isCondo ? 0 : getStoriesFee(stories);
+
       const cleanZip = zip.replace(/\D/g, "");
       const zipAdj = zipAdjustments[cleanZip] || 1;
-      const base = rawBase ? Math.round(rawBase * zone.multiplier * zipAdj) : 0;
+
+      const preMultiplierBase = rawBase ? (rawBase + bathroomFee + bedroomFee + storiesFee) : 0;
+      const base = rawBase ? Math.round(preMultiplierBase * zone.multiplier * zipAdj) : 0;
+
       const addOns = getSelectedAddOnsTotal();
-      const total = base + addOns;
+      const subtotal = base + addOns;
+
+      const payInFull = document.getElementById("payInFullDiscount").checked;
+      const military = document.getElementById("militaryDiscount").checked;
+      let discountRate = 0;
+      if (payInFull) discountRate += PAY_IN_FULL_DISCOUNT_RATE;
+      if (military) discountRate += MILITARY_DISCOUNT_RATE;
+      const discountAmount = Math.round(subtotal * discountRate);
+      const total = subtotal - discountAmount;
 
       document.getElementById("basePrice").textContent = formatCurrency(base);
       document.getElementById("addOnsPrice").textContent = formatCurrency(addOns);
       document.getElementById("totalPrice").textContent = formatCurrency(total);
 
+      const breakdownEl = document.getElementById("priceBreakdown");
+      if (rawBase) {
+        breakdownEl.innerHTML = `
+          <div>Sqft base <span class="amt">${formatCurrency(rawBase)}</span></div>
+          ${bedroomFee ? `<div>Bedrooms over ${INCLUDED_BEDROOMS} <span class="amt">+${formatCurrency(bedroomFee)}</span></div>` : ""}
+          ${bathroomFee ? `<div>Bathrooms over ${INCLUDED_BATHROOMS} <span class="amt">+${formatCurrency(bathroomFee)}</span></div>` : ""}
+          ${storiesFee ? `<div>Stories above 1 <span class="amt">+${formatCurrency(storiesFee)}</span></div>` : ""}
+          <div>Zone / ZIP adjustment <span class="amt">&times; ${(zone.multiplier * zipAdj).toFixed(2)}</span></div>
+          ${discountAmount ? `<div>Discounts (${Math.round(discountRate * 100)}%) <span class="amt">-${formatCurrency(discountAmount)}</span></div>` : ""}
+        `;
+      } else {
+        breakdownEl.innerHTML = "";
+      }
+
       document.getElementById("summaryDetails").innerHTML = `
         Property Type: ${propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}<br>
         Square Feet: ${sqft || "Not entered"}<br>
+        Bedrooms: ${bedrooms || "Not entered"} &nbsp;|&nbsp; Bathrooms: ${bathrooms || "Not entered"}<br>
         Stories: ${stories}<br>
         Booking Type: ${duration.label}
       `;
@@ -579,6 +698,7 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
         return;
       }
       const addOnText = data.selectedAddOns.length ? `Add-Ons: ${data.selectedAddOns.join(", ")}\n` : "";
+      const discountText = data.discountLabels.length ? `Discounts Applied: ${data.discountLabels.join(", ")}\n` : "";
       const text =
         `Hi ${data.buyerName || "Customer"},\n\n` +
         `This is Tim with Impact Property Inspections.\n\n` +
@@ -587,11 +707,13 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
         `ZIP Code: ${data.zip}\n` +
         `Property Type: ${data.propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
         `Square Feet: ${data.sqft || "TBD"}\n` +
+        `Bedrooms: ${data.bedrooms || "TBD"} | Bathrooms: ${data.bathrooms || "TBD"}\n` +
         `Stories: ${data.stories}\n` +
         `Inspection Window: ${data.duration.label}\n` +
         addOnText +
+        discountText +
         `\nEstimated Total: ${data.total}\n\n` +
-        `A deposit is required to reserve your inspection appointment and will be applied toward your inspection total.\n\n` +
+        `A 50% deposit is required to reserve your inspection appointment. The remaining balance is due after the on-site inspection consultation, unless paying in full at booking.\n\n` +
         `Impact Property Inspections operates under Mobile Onsite Handyman Services LLC.\n\n` +
         `Thanks,\nTim\nImpact Property Inspections`;
       document.getElementById("quoteOutput").value = text;
@@ -610,6 +732,7 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
         return;
       }
       const addOnText = data.selectedAddOns.length ? data.selectedAddOns.join(", ") : "None selected";
+      const discountText = data.discountLabels.length ? data.discountLabels.join(", ") : "None applied";
       const text =
         `SPECTORA INTAKE SUMMARY\n\n` +
         `CLIENT / BUYER\n` +
@@ -627,6 +750,8 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
         `Year Built: ${data.yearBuilt}\n` +
         `Property Type: ${data.propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
         `Square Feet: ${data.sqft || "TBD"}\n` +
+        `Bedrooms: ${data.bedrooms || "TBD"}\n` +
+        `Bathrooms: ${data.bathrooms || "TBD"}\n` +
         `Stories: ${data.stories}\n` +
         `Occupancy: ${data.occupancy}\n` +
         `Access Notes: ${data.accessNotes}\n\n` +
@@ -634,12 +759,15 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
         `Service Area: ${data.zone ? data.zone.cluster : "TBD"}\n` +
         `Inspection Window: ${data.duration.label}\n` +
         `Calendly Event Link: ${data.duration.link}\n` +
-        `Base Inspection: ${data.base}\n` +
+        `Base Inspection (incl. bed/bath/story adjustments): ${data.base}\n` +
         `Add-Ons: ${addOnText}\n` +
         `Add-Ons Total: ${data.addOnsPrice}\n` +
+        `Discounts Applied: ${discountText}\n` +
         `Estimated Total: ${data.total}\n\n` +
         `PAYMENT / BOOKING\n` +
-        `Deposit required through Calendly/Stripe before appointment is reserved.\n` +
+        `50% deposit required through Calendly/Stripe to reserve appointment.\n` +
+        `Balance due after on-site inspection consultation, unless client paid in full at booking (5% discount).\n` +
+        `Active duty / veteran military discount (5%) applied if verified.\n` +
         `After booking, create inspection in Spectora and send agreement/report access to buyer and agent as needed.`;
       document.getElementById("spectoraOutput").value = text;
     }
@@ -673,12 +801,17 @@ document.getElementById("bookLink").href = duration.link + calendlyPrefill;
     document.getElementById("propertyType").addEventListener("change", updateQuote);
     document.getElementById("stories").addEventListener("change", updateQuote);
     document.getElementById("sqft").addEventListener("input", updateQuote);
+    document.getElementById("bedrooms").addEventListener("input", updateQuote);
+    document.getElementById("bathrooms").addEventListener("input", updateQuote);
     document.getElementById("yearBuilt").addEventListener("input", updateQuote);
     document.getElementById("occupancy").addEventListener("change", updateQuote);
 
     document.querySelectorAll(".addon-check").forEach(cb => {
       cb.addEventListener("change", updateQuote);
     });
+
+    document.getElementById("payInFullDiscount").addEventListener("change", updateQuote);
+    document.getElementById("militaryDiscount").addEventListener("change", updateQuote);
 
     updateQuote();
   </script>
