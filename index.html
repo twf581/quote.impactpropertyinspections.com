@@ -260,6 +260,7 @@
           <select id="propertyType">
             <option value="single">Single Family Home</option>
             <option value="condo">Condo / Townhome</option>
+            <option value="manufactured">Manufactured / Mobile Home</option>
           </select>
         </div>
         <div>
@@ -438,6 +439,12 @@
     const BASE_CONDO_FIXED = 175;
     const BASE_CONDO_RATE = 0.09;
 
+    // Manufactured / mobile home (incl. on permanent foundation):
+    // base = max(275, 200 + 0.105 * sqft)
+    const BASE_MFG_FLOOR = 275;
+    const BASE_MFG_FIXED = 200;
+    const BASE_MFG_RATE = 0.105;
+
     // Included bed/bath before extra fees kick in
     const INCLUDED_BATHROOMS = 2.5;
     const INCLUDED_BEDROOMS = 4;
@@ -486,7 +493,16 @@
       if (propertyType === "condo") {
         return roundToFive(Math.max(BASE_CONDO_FLOOR, BASE_CONDO_FIXED + BASE_CONDO_RATE * sf));
       }
+      if (propertyType === "manufactured") {
+        return roundToFive(Math.max(BASE_MFG_FLOOR, BASE_MFG_FIXED + BASE_MFG_RATE * sf));
+      }
       return roundToFive(Math.max(BASE_SF_FLOOR, BASE_SF_FIXED + BASE_SF_RATE * sf));
+    }
+
+    function getPropertyTypeLabel(propertyType) {
+      if (propertyType === "condo") return "Condo / Townhome";
+      if (propertyType === "manufactured") return "Manufactured / Mobile Home";
+      return "Single Family Home";
     }
 
     function getBathroomFee(bathrooms) {
@@ -659,7 +675,7 @@
       }
 
       document.getElementById("summaryDetails").innerHTML = `
-        Property Type: ${propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}<br>
+        Property Type: ${getPropertyTypeLabel(propertyType)}<br>
         Square Feet: ${sqft || "Not entered"}<br>
         Bedrooms: ${bedrooms || "Not entered"} &nbsp;|&nbsp; Bathrooms: ${bathrooms || "Not entered"}<br>
         Stories: ${stories}<br>
@@ -705,7 +721,7 @@
         `Here is your inspection quote:\n\n` +
         `Property: ${data.propertyAddress}\n` +
         `ZIP Code: ${data.zip}\n` +
-        `Property Type: ${data.propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
+        `Property Type: ${getPropertyTypeLabel(data.propertyType)}\n` +
         `Square Feet: ${data.sqft || "TBD"}\n` +
         `Bedrooms: ${data.bedrooms || "TBD"} | Bathrooms: ${data.bathrooms || "TBD"}\n` +
         `Stories: ${data.stories}\n` +
@@ -748,7 +764,7 @@
         `Address: ${data.propertyAddress}\n` +
         `ZIP: ${data.zip}\n` +
         `Year Built: ${data.yearBuilt}\n` +
-        `Property Type: ${data.propertyType === "condo" ? "Condo / Townhome" : "Single Family Home"}\n` +
+        `Property Type: ${getPropertyTypeLabel(data.propertyType)}\n` +
         `Square Feet: ${data.sqft || "TBD"}\n` +
         `Bedrooms: ${data.bedrooms || "TBD"}\n` +
         `Bathrooms: ${data.bathrooms || "TBD"}\n` +
